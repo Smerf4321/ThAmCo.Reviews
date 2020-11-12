@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace ThAmCo.Reviews.Models
 {
     public class ReviewDto
     {
+        [Key]
         public int reviewId { get; set; }
 
         public int userId { get; set; }
