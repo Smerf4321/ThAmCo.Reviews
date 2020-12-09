@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using ThAmCo.Reviews.Data;
 using ThAmCo.Reviews.Models;
 using ThAmCo.Reviews.Services;
 
 namespace ThAmCo.Reviews.Controllers
 {
+    [ApiController]
     public class ReviewController : Controller
     {
         private readonly IReviewService _reviewService;
@@ -82,7 +82,7 @@ namespace ThAmCo.Reviews.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ReviewDtoExists(reviewDto.reviewId))
+                    if (!(await ReviewDtoExists(reviewDto.reviewId)))
                     {
                         return NotFound();
                     }
@@ -100,7 +100,7 @@ namespace ThAmCo.Reviews.Controllers
         [HttpPost("api/Review/Delete/{reviewId}")]
         public async Task<IActionResult> DeleteConfirmed(int reviewId)
         {
-            if (ReviewDtoExists(reviewId))
+            if (await ReviewDtoExists(reviewId))
             {
                 await _reviewService.DeleteReviewAsync(reviewId);
                 return Ok();
@@ -108,7 +108,7 @@ namespace ThAmCo.Reviews.Controllers
             return NotFound();
         }
 
-        private bool ReviewDtoExists(int reviewId)
+        private Task<bool> ReviewDtoExists(int reviewId)
         {
             return _reviewService.DoesReviewDtoExists(reviewId);
         }

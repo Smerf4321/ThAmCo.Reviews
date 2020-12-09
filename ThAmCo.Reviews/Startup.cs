@@ -9,26 +9,38 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using ThAmCo.Reviews.Services;
 using ThAmCo.Reviews.Data;
 
 namespace ThAmCo.Reviews
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
+        public IWebHostEnvironment Environment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
 
-            services.AddDbContext<ReviewsContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("ReviewsContext")));
+            if (Environment.IsDevelopment())
+            {
+                services.AddSingleton<IReviewService, FakeReviewService>();
+            }
+            else
+            {
+                services.AddScoped<IReviewService, ReviewService>();
+            }
+
+            services.AddDbContext<ThAmCoReviewsContext>(options =>
+                    options.UseSqlServer(Configuration.GetConnectionString("ThAmCoReviewsContext")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,8 +52,6 @@ namespace ThAmCo.Reviews
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
