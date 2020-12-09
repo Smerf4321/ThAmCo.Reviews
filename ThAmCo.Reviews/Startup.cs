@@ -36,7 +36,7 @@ namespace ThAmCo.Reviews
             }
             else
             {
-                //sservices.AddScoped<IReviewService, >();
+                services.AddScoped<IReviewService, ReviewService>();
             }
 
             services.AddDbContext<ThAmCoReviewsContext>(options =>
