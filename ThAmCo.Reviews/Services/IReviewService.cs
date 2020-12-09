@@ -11,5 +11,15 @@ namespace ThAmCo.Reviews.Services
         Task<ReviewDto> GetReviewAsync(int reviewId);
 
         Task<IEnumerable<ReviewDto>>GetReviewListAsync(int? productId, int? userId);
+
+        Task CreateReviewAsync(ReviewDto review);
+
+        Task EditReviewAsync(ReviewDto review);
+
+        Task DeleteReviewAsync(int reviewId);
+
+        Task<double> GetMeanRating(int productId);
+
+        bool DoesReviewDtoExists(int reviewId);
     }
 }

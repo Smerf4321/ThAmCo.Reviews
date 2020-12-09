@@ -15,7 +15,6 @@ namespace ThAmCo.Reviews.Controllers
 {
     public class ReviewController : Controller
     {
-        private readonly ILogger<ReviewController> _logger;
         private readonly IReviewService _reviewService;
 
         public ReviewController(IReviewService reviewService)
@@ -24,11 +23,10 @@ namespace ThAmCo.Reviews.Controllers
         }
 
         // GET: api/Review/
-        [HttpGet("api/Review/")]
+        [HttpGet("api/Review")]
         public async Task<IActionResult> GetReviewListAsync(int? productId, int? userId)
         {
             IEnumerable<ReviewDto> reviews = null;
-
             try
             {
                 reviews = await _reviewService.GetReviewListAsync(productId, userId);
@@ -47,7 +45,7 @@ namespace ThAmCo.Reviews.Controllers
         }
 
         // GET: api/Review/5
-        [HttpGet("api/Review/5")]
+        [HttpGet("api/Review/{reviewId}")]
         public async Task<IActionResult> GetReviewAsync(int reviewId)
         {
             var reviewDto = await _reviewService.GetReviewAsync(reviewId);
@@ -57,7 +55,69 @@ namespace ThAmCo.Reviews.Controllers
                 return NotFound();
             }
 
-            return View(reviewDto);
+            return Ok(reviewDto);
+        }
+
+        // POST: api/Review/Create
+        [HttpPost("api/Review/Create")]
+        public async Task<IActionResult> Create([Bind("reviewId,userId,productId,userName,reviewContent,reviewRating")] ReviewDto reviewDto)
+        {
+            if (ModelState.IsValid)
+            {
+                await _reviewService.CreateReviewAsync(reviewDto);
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        // POST: api/Review/Edit/5
+        [HttpPost("api/Review/Edit/")]
+        public async Task<IActionResult> Edit([Bind("reviewId,userId,productId,userName,reviewContent,reviewRating")] ReviewDto reviewDto)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _reviewService.EditReviewAsync(reviewDto);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ReviewDtoExists(reviewDto.reviewId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        // POST: ReviewDtoes/Delete/5
+        [HttpPost("api/Review/Delete/{reviewId}")]
+        public async Task<IActionResult> DeleteConfirmed(int reviewId)
+        {
+            if (ReviewDtoExists(reviewId))
+            {
+                await _reviewService.DeleteReviewAsync(reviewId);
+                return Ok();
+            }
+            return NotFound();
+        }
+
+        private bool ReviewDtoExists(int reviewId)
+        {
+            return _reviewService.DoesReviewDtoExists(reviewId);
+        }
+
+        // GET: api/Review/Rating/5
+        [HttpGet("api/Review/Rating/{prodcutId}")]
+        public async Task<IActionResult> GetMeanRating(int productId)
+        {
+            return Ok( await _reviewService.GetMeanRating(productId));
         }
     }
 }
