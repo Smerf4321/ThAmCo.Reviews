@@ -31,9 +31,9 @@ namespace ThAmCo.Reviews.Services
             });
         }
 
-        public bool DoesReviewDtoExists(int reviewId)
+        public Task<bool> DoesReviewDtoExists(int reviewId)
         {
-            return _reviews.Exists(r => r.reviewId == reviewId);
+            return Task.FromResult(_reviews.Exists(r => r.reviewId == reviewId));
         }
 
         public Task EditReviewAsync(ReviewDto review)
@@ -68,18 +68,18 @@ namespace ThAmCo.Reviews.Services
         {
             var reviews = _reviews.AsEnumerable();
 
-            if (productId == null)
+            if (productId != null && userId != null)
             {
-                reviews = reviews.Where(r => r.userId == userId);
-                return Task.FromResult(reviews);
+                reviews = reviews.Where(r => r.productId == productId && r.userId == userId);
             }
-            if (userId == null)
+            if (productId != null)
             {
                 reviews = reviews.Where(r => r.productId == productId);
-                return Task.FromResult(reviews);
             }
-
-            reviews = reviews.Where(r => r.productId == productId && r.userId == userId);
+            if (userId != null)
+            {
+                reviews = reviews.Where(r => r.userId == userId);
+            }
             return Task.FromResult(reviews);
         }
     }

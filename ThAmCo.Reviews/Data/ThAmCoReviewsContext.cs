@@ -7,13 +7,13 @@ using ThAmCo.Reviews.Models;
 
 namespace ThAmCo.Reviews.Data
 {
-    public class ReviewsContext : DbContext
+    public class ThAmCoReviewsContext : DbContext
     {
-        public ReviewsContext (DbContextOptions<ReviewsContext> options)
+        public ThAmCoReviewsContext (DbContextOptions<ThAmCoReviewsContext> options)
             : base(options)
         {
         }
 
-        public DbSet<ThAmCo.Reviews.Models.ReviewDto> ReviewDto { get; set; }
+        public DbSet<ThAmCo.Reviews.Models.Review> Review { get; set; }
     }
 }
