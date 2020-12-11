@@ -8,12 +8,25 @@ namespace ThAmCo.Reviews.Services
 {
     public class FakeReviewService : IReviewService
     {
-        private readonly List<ReviewDto> _reviews = new List<ReviewDto>
+        List<ReviewDto> _reviews;
+        private readonly List<ReviewDto> reviews = new List<ReviewDto>
         {
             new ReviewDto {reviewId = 1, productId = 1, userId = 1, userName = "Dimitri 'Not-Russian-Bot' Ivanov", reviewRating = 5, reviewContent = "Great Product. You can believe me, I'm not a bot." },
             new ReviewDto {reviewId = 2, productId = 1, userId = 2, userName = "Joe Angry", reviewRating = 3, reviewContent = "It's an okay plunger. I expected more." },
             new ReviewDto {reviewId = 3, productId = 4, userId = 1, userName = "Dimitri 'Not-Russian-Bot' Ivanov", reviewRating = 4, reviewContent = "Good hardbass, although lacking the newest song from Dj Put-in" }
         };
+
+        public FakeReviewService()
+        {
+            _reviews = reviews;
+        }
+
+        public FakeReviewService(List<ReviewDto> data)
+        {
+            _reviews = data;
+        }
+
+        
 
         public Task CreateReviewAsync(ReviewDto review)
         {
