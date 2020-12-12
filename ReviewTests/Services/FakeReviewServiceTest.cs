@@ -21,7 +21,7 @@ namespace ReviewTests.Services
         };
 
         [TestMethod]
-        public async Task GetAllReviews_ShouldOKObject()
+        public async Task GetAllReviews_ShouldTask()
         {
             var service = new FakeReviewService(_reviews);
             var result = await service.GetReviewListAsync(null, null);
@@ -44,7 +44,7 @@ namespace ReviewTests.Services
         }
 
         [TestMethod]
-        public async Task GetAllReviewsForProductId_ShouldOKObject()
+        public async Task GetAllReviewsForProductId_ShouldTask()
         {
             var service = new FakeReviewService(_reviews);
             var result = await service.GetReviewListAsync(1, null);
@@ -69,7 +69,7 @@ namespace ReviewTests.Services
         }
 
         [TestMethod]
-        public async Task GetAllReviewsForUserId_ShouldOKObject()
+        public async Task GetAllReviewsForUserId_ShouldTask()
         {
             var service = new FakeReviewService(_reviews);
             var result = await service.GetReviewListAsync(null, 1);
@@ -92,5 +92,124 @@ namespace ReviewTests.Services
                 Assert.AreEqual(limitedReviews[i].reviewContent, reviewsResultList[i].reviewContent);
             }
         }
+
+        [TestMethod]
+        public async Task GetAllReviewsForProductIdandUserId_ShouldTask()
+        {
+            var service = new FakeReviewService(_reviews);
+            var result = await service.GetReviewListAsync(1, 1);
+
+            Assert.IsNotNull(result);
+            var reviewsResult = result as IEnumerable<ReviewDto>;
+            Assert.IsNotNull(reviewsResult);
+            Assert.IsTrue(reviewsResult.All(r => r.userId == 1 && r.productId == 1));
+            var reviewsResultList = reviewsResult.ToList();
+            var limitedReviews = _reviews.FindAll(r => r.userId == 1 && r.productId == 1);
+            Assert.AreEqual(limitedReviews.Count, reviewsResultList.Count);
+
+            for (int i = 0; i < limitedReviews.Count; ++i)
+            {
+                Assert.AreEqual(limitedReviews[i].reviewId, reviewsResultList[i].reviewId);
+                Assert.AreEqual(limitedReviews[i].productId, reviewsResultList[i].productId);
+                Assert.AreEqual(limitedReviews[i].userId, reviewsResultList[i].userId);
+                Assert.AreEqual(limitedReviews[i].userName, reviewsResultList[i].userName);
+                Assert.AreEqual(limitedReviews[i].reviewRating, reviewsResultList[i].reviewRating);
+                Assert.AreEqual(limitedReviews[i].reviewContent, reviewsResultList[i].reviewContent);
+            }
+        }
+
+        [TestMethod]
+        public async Task GetReviewWithReviewId_ShouldTask()
+        {
+            var service = new FakeReviewService(_reviews);
+            var result = await service.GetReviewAsync(1);
+
+            Assert.IsNotNull(result);
+            var reviewsResult = result as ReviewDto;
+            Assert.IsNotNull(reviewsResult);
+            var targetReview = _reviews.Find(r => r.reviewId == 1);
+
+            Assert.AreEqual(targetReview.productId, reviewsResult.productId);
+            Assert.AreEqual(targetReview.userId, reviewsResult.userId);
+            Assert.AreEqual(targetReview.userName, reviewsResult.userName);
+            Assert.AreEqual(targetReview.reviewRating, reviewsResult.reviewRating);
+            Assert.AreEqual(targetReview.reviewContent, reviewsResult.reviewContent);
+        }
+
+        [TestMethod]
+        public async Task Create_ShouldTask()
+        {
+            var newReview = new ReviewDto { reviewId = 5, productId = 6, userId = 4, userName = "Mick", reviewRating = 3, reviewContent = "Seen better." };
+            var service = new FakeReviewService(_reviews);
+            await service.CreateReviewAsync(newReview);
+
+            Assert.IsNotNull(_reviews.Find(r => r.reviewId == 5));
+            var targetReview = _reviews.Find(r => r.reviewId == 5);
+
+            Assert.AreEqual(newReview.productId, targetReview.productId);
+            Assert.AreEqual(newReview.userId, targetReview.userId);
+            Assert.AreEqual(newReview.userName, targetReview.userName);
+            Assert.AreEqual(newReview.reviewRating, targetReview.reviewRating);
+            Assert.AreEqual(newReview.reviewContent, targetReview.reviewContent);
+        }
+
+        [TestMethod]
+        public async Task Delete_ShouldTask()
+        {
+            var newReview = new ReviewDto { reviewId = 5, productId = 6, userId = 4, userName = "Mick", reviewRating = 3, reviewContent = "Seen better." };
+            var service = new FakeReviewService(_reviews);
+            await service.CreateReviewAsync(newReview);
+
+            Assert.IsNotNull(_reviews.Find(r => r.reviewId == 5));
+            var targetReview = _reviews.Find(r => r.reviewId == 5);
+
+            Assert.AreEqual(newReview.productId, targetReview.productId);
+            Assert.AreEqual(newReview.userId, targetReview.userId);
+            Assert.AreEqual(newReview.userName, targetReview.userName);
+            Assert.AreEqual(newReview.reviewRating, targetReview.reviewRating);
+            Assert.AreEqual(newReview.reviewContent, targetReview.reviewContent);
+        }
+
+        [TestMethod]
+        public async Task DoesReviewDtoExist_ShouldReturnTrue()
+        {
+            var service = new FakeReviewService(_reviews);
+            var result = await service.DoesReviewDtoExists(1);
+
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public async Task DoesReviewDtoExist_ShouldReturnFalse()
+        {
+            var service = new FakeReviewService(_reviews);
+            var result = await service.DoesReviewDtoExists(15);
+
+            Assert.IsNotNull(result);
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public async Task GetMeanRatingValidReviews_ShouldReturnDouble()
+        {
+            var service = new FakeReviewService(_reviews);
+            var result = await service.GetMeanRating(1);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(3, result); ;
+        }
+
+        [TestMethod]
+        public async Task GetMeanRatingNonExistingReviews_ShouldReturnDouble()
+        {
+            var service = new FakeReviewService(_reviews);
+            var result = await service.GetMeanRating(4);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(0, result); ;
+        }
+
+
     }
 }
