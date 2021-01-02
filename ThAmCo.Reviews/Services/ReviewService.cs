@@ -16,37 +16,57 @@ namespace ThAmCo.Reviews.Services
             _context = context;
         }
 
-        public async Task CreateReviewAsync(ReviewDto review)
+        public Task CreateReviewAsync(ReviewDto review)
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteReviewAsync(int reviewId)
+        public Task DeleteReviewAsync(int reviewId, string staffEmail)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<bool> DoesReviewDtoExists(int reviewId)
+        public Task DeleteReviewPIIAsync(int userId, string staffEmail)
         {
             throw new NotImplementedException();
         }
 
-        public async Task EditReviewAsync(ReviewDto review)
+        public Task<bool> DoesReviewDtoExists(int reviewId)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<double> GetMeanRating(int productId)
+        public Task EditReviewAsync(ReviewDto review)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<ReviewDto> GetReviewAsync(int reviewId)
+        public Task<double> GetMeanRating(int productId)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<ReviewDto>> GetReviewListAsync(int? productId, int? userId)
+        public Task<ReviewDto> GetReviewAsync(int reviewId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<ReviewDto>> GetReviewListAsync(int? productId, int? userId, bool hidden, bool deleted)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task HideReviewAsync(int reviewId, string staffEmail)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RecoverDeletedReviewAsync(int reviewId, string staffEmail)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RecoverHiddenReviewAsync(int reviewId, string staffEmail)
         {
             throw new NotImplementedException();
         }

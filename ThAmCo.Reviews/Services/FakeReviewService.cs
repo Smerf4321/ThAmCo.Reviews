@@ -41,9 +41,19 @@ namespace ThAmCo.Reviews.Services
             return Task.FromResult(reviewDto);
         }
 
-        public Task<IEnumerable<ReviewDto>> GetReviewListAsync(int? productId, int? userId)
+        public Task<IEnumerable<ReviewDto>> GetReviewListAsync(int? productId, int? userId, Boolean hidden, Boolean deleted)
         {
-            var reviews = _reviews.AsEnumerable();
+            var reviews = _reviews.AsEnumerable().Where(r => r.hidden == false && r.deleted == false);
+
+            if (hidden)
+            {
+                reviews = _reviews.AsEnumerable().Where(r => r.hidden == true);
+            }
+            else if (deleted)
+            {
+                reviews = _reviews.AsEnumerable().Where(r => r.deleted == true);
+            }
+
             IEnumerable<ReviewDto> reviewsList;
             
             if (productId != null && userId != null)
@@ -139,9 +149,32 @@ namespace ThAmCo.Reviews.Services
             });
         }
 
-        public Task<bool> DoesReviewDtoExists(int reviewId)
+        public Task DeleteReviewPIIAsync(int userId, string staffEmail)
         {
-            return Task.FromResult(_reviews.Exists(r => r.reviewId == reviewId));
+            List<Review> reviews = _reviews.FindAll(r => r.userId == userId);
+
+            return Task.Run(() =>
+            {
+                foreach (Review review in reviews)
+                {
+                    review.userName = "Account Deleted";
+                    review.deleted = true;
+                    review.lastUpdated = DateTime.UtcNow;
+                    review.lastUpdatedStaffEmail = staffEmail;
+                }
+            });
+        }
+
+        public Task HideReviewAsync(int reviewId, string staffEmail)
+        {
+            Review review = _reviews.Find(r => r.reviewId == reviewId);
+
+            return Task.Run(() =>
+            {
+                review.hidden = true;
+                review.lastUpdated = DateTime.UtcNow;
+                review.lastUpdatedStaffEmail = staffEmail;
+            });
         }
 
         public Task EditReviewAsync(ReviewDto reviewDto)
@@ -152,6 +185,30 @@ namespace ThAmCo.Reviews.Services
             {
                 _reviews.Remove(review);
                 _reviews.Add(review);
+            });
+        }
+
+        public Task RecoverDeletedReviewAsync(int reviewId, string staffEmail)
+        {
+            Review review = _reviews.Find(r => r.reviewId == reviewId);
+
+            return Task.Run(() =>
+            {
+                review.deleted = false;
+                review.lastUpdated = DateTime.UtcNow;
+                review.lastUpdatedStaffEmail = staffEmail;
+            });
+        }
+
+        public Task RecoverHiddenReviewAsync(int reviewId, string staffEmail)
+        {
+            Review review = _reviews.Find(r => r.reviewId == reviewId);
+
+            return Task.Run(() =>
+            {
+                review.hidden = false;
+                review.lastUpdated = DateTime.UtcNow;
+                review.lastUpdatedStaffEmail = staffEmail;
             });
         }
 
@@ -173,32 +230,9 @@ namespace ThAmCo.Reviews.Services
             return Task.FromResult((double)ratingTotal / ratings.Count);
         }
 
-        public Task DeleteReviewPIIAsync(int userId, string staffEmail)
+        public Task<bool> DoesReviewDtoExists(int reviewId)
         {
-            List<Review> reviews = _reviews.FindAll(r => r.userId == userId);
-
-            return Task.Run(() =>
-            {
-                foreach (Review review in reviews)
-                {
-                    review.userName = "REDACTED";
-                    review.deleted = true;
-                    review.lastUpdated = DateTime.UtcNow;
-                    review.lastUpdatedStaffEmail = staffEmail;
-                }
-            });
-        }
-
-        public Task HideReviewAsync(int reviewId, string staffEmail)
-        {
-            Review review = _reviews.Find(r => r.reviewId == reviewId);
-
-            return Task.Run(() =>
-            {
-                review.hidden = true;
-                review.lastUpdated = DateTime.UtcNow;
-                review.lastUpdatedStaffEmail = staffEmail;
-            });
+            return Task.FromResult(_reviews.Exists(r => r.reviewId == reviewId));
         }
     }
 }

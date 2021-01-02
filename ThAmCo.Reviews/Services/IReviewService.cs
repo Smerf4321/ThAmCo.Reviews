@@ -10,17 +10,21 @@ namespace ThAmCo.Reviews.Services
     {
         Task<ReviewDto> GetReviewAsync(int reviewId);
 
-        Task<IEnumerable<ReviewDto>>GetReviewListAsync(int? productId, int? userId);
+        Task<IEnumerable<ReviewDto>>GetReviewListAsync(int? productId, int? userId, Boolean hidden, Boolean deleted);
 
         Task CreateReviewAsync(ReviewDto review);
-
-        Task EditReviewAsync(ReviewDto review);
 
         Task DeleteReviewAsync(int reviewId, string staffEmail);
 
         Task DeleteReviewPIIAsync(int userId, string staffEmail);
 
         Task HideReviewAsync(int reviewId, string staffEmail);
+
+        Task EditReviewAsync(ReviewDto review);
+
+        Task RecoverHiddenReviewAsync(int reviewId, string staffEmail);
+
+        Task RecoverDeletedReviewAsync(int reviewId, string staffEmail);
 
         Task<double> GetMeanRating(int productId);
 
