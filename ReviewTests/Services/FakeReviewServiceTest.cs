@@ -12,7 +12,7 @@ namespace ReviewTests.Services
     [TestClass]
     public class FakeReviewServicesTest
     {
-        List<ReviewDto> _reviews = new List<ReviewDto>
+        private readonly List<ReviewDto> _reviews = new List<ReviewDto>
         {
             new ReviewDto {reviewId = 1, productId = 1, userId = 1, userName = "Joe", reviewRating = 5, reviewContent = "Great Product." },
             new ReviewDto {reviewId = 2, productId = 2, userId = 2, userName = "Bob", reviewRating = 3, reviewContent = "It's okay." },

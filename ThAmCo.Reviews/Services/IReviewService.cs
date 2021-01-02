@@ -16,7 +16,11 @@ namespace ThAmCo.Reviews.Services
 
         Task EditReviewAsync(ReviewDto review);
 
-        Task DeleteReviewAsync(int reviewId);
+        Task DeleteReviewAsync(int reviewId, string staffEmail);
+
+        Task DeleteReviewPIIAsync(int userId, string staffEmail);
+
+        Task HideReviewAsync(int reviewId, string staffEmail);
 
         Task<double> GetMeanRating(int productId);
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -28,6 +29,25 @@ namespace ThAmCo.Reviews
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
+            {
+                options.Authority = "https://thamco-auth-staging.azurewebsites.net";
+                options.Audience = "api_review";
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CustomerOnly", builder =>
+                {
+                    builder.RequireClaim("role", "User");
+                });
+                options.AddPolicy("StaffOnly", builder =>
+                {
+                    builder.RequireClaim("role", "Staff");
+                });
+            });
+
             services.AddControllersWithViews();
 
             if (Environment.IsDevelopment())
@@ -59,6 +79,7 @@ namespace ThAmCo.Reviews
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

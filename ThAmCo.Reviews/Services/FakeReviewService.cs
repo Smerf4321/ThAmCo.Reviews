@@ -8,7 +8,7 @@ namespace ThAmCo.Reviews.Services
 {
     public class FakeReviewService : IReviewService
     {
-        List<Review> _reviews;
+        private List<Review> _reviews;
         private readonly List<Review> reviews = new List<Review>
         {
             new Review {reviewId = 1, productId = 1, userId = 1, userName = "Dimitri 'Not-Russian-Bot' Ivanov", reviewRating = 5, reviewContent = "Great Product. You can believe me, I'm not a bot.", hidden = false, deleted = false, dateCreated = DateTime.UtcNow, lastUpdated = DateTime.UtcNow, lastUpdatedStaffEmail = "fakestaff@fake.staff" },
@@ -127,11 +127,15 @@ namespace ThAmCo.Reviews.Services
             });
         }
 
-        public Task DeleteReviewAsync(int reviewId)
+        public Task DeleteReviewAsync(int reviewId, string staffEmail)
         {
+            Review review = _reviews.Find(r => r.reviewId == reviewId);
+
             return Task.Run(() =>
             {
-                _reviews.RemoveAll(r => r.reviewId == reviewId);
+                review.deleted = true;
+                review.lastUpdated = DateTime.UtcNow;
+                review.lastUpdatedStaffEmail = staffEmail;
             });
         }
 
@@ -153,20 +157,48 @@ namespace ThAmCo.Reviews.Services
 
         public Task<double> GetMeanRating(int productId)
         {
-            List<ReviewDto> ratings = _reviews.FindAll(r => r.productId == productId);
+            List<Review> ratings = _reviews.FindAll(r => r.productId == productId);
             double ratingTotal = 0;
 
-            if (ratings.)
+            if (ratings.Equals(null))
             {
                 return Task.FromResult(ratingTotal);
             }
 
-            foreach (ReviewDto review in ratings)
+            foreach (Review review in ratings)
             {
                 ratingTotal += review.reviewRating;
             }
 
             return Task.FromResult((double)ratingTotal / ratings.Count);
+        }
+
+        public Task DeleteReviewPIIAsync(int userId, string staffEmail)
+        {
+            List<Review> reviews = _reviews.FindAll(r => r.userId == userId);
+
+            return Task.Run(() =>
+            {
+                foreach (Review review in reviews)
+                {
+                    review.userName = "REDACTED";
+                    review.deleted = true;
+                    review.lastUpdated = DateTime.UtcNow;
+                    review.lastUpdatedStaffEmail = staffEmail;
+                }
+            });
+        }
+
+        public Task HideReviewAsync(int reviewId, string staffEmail)
+        {
+            Review review = _reviews.Find(r => r.reviewId == reviewId);
+
+            return Task.Run(() =>
+            {
+                review.hidden = true;
+                review.lastUpdated = DateTime.UtcNow;
+                review.lastUpdatedStaffEmail = staffEmail;
+            });
         }
     }
 }
