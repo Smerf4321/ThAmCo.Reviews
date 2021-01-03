@@ -184,6 +184,9 @@ namespace ThAmCo.Reviews.Services
             return Task.Run(() =>
             {
                 _reviews.Remove(review);
+                review.reviewRating = reviewDto.reviewRating;
+                review.reviewContent = reviewDto.reviewContent;
+                review.lastUpdated = DateTime.UtcNow;
                 _reviews.Add(review);
             });
         }
