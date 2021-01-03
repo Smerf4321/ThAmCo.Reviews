@@ -38,8 +38,8 @@ namespace ThAmCo.Reviews.Controllers
             return Ok(reviewDto);
         }
 
-        // GET: api/Review/
-        [HttpGet("api/Review")]
+        // GET: api/ReviewList/
+        [HttpGet("api/ReviewList")]
         [Authorize(Policy = "CustomerOnly, StaffOnly")]
         public async Task<IActionResult> GetReviewListAsync(int? productId, int? userId)
         {
@@ -61,8 +61,8 @@ namespace ThAmCo.Reviews.Controllers
             return Ok(reviews);
         }
 
-        // GET: api/HiddenReview/
-        [HttpGet("api/HiddenReview")]
+        // GET: api/HiddenReviewList/
+        [HttpGet("api/HiddenReviewList")]
         [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> GetHiddenReviewListAsync(int? productId, int? userId)
         {
@@ -84,8 +84,8 @@ namespace ThAmCo.Reviews.Controllers
             return Ok(reviews);
         }
 
-        // GET: api/DeletedReview/
-        [HttpGet("api/DeletedReview")]
+        // GET: api/DeletedReviewList/
+        [HttpGet("api/DeletedReviewList")]
         [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> GetDeletedReviewListAsync(int? productId, int? userId)
         {
@@ -127,7 +127,7 @@ namespace ThAmCo.Reviews.Controllers
         {
             var staffEmail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
 
-            if (await ReviewDtoExists(reviewId))
+            if (await ReviewExists(reviewId))
             {
                 await _reviewService.DeleteReviewAsync(reviewId, staffEmail);
                 return Ok();
@@ -153,7 +153,7 @@ namespace ThAmCo.Reviews.Controllers
         {
             var staffEmail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
 
-            if (await ReviewDtoExists(reviewId))
+            if (await ReviewExists(reviewId))
             {
                 await _reviewService.HideReviewAsync(reviewId, staffEmail);
                 return Ok();
@@ -174,7 +174,7 @@ namespace ThAmCo.Reviews.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await ReviewDtoExists(reviewDto.reviewId)))
+                    if (!(await ReviewExists(reviewDto.reviewId)))
                     {
                         return NotFound();
                     }
@@ -195,7 +195,7 @@ namespace ThAmCo.Reviews.Controllers
         {
             var staffEmail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
 
-            if (await ReviewDtoExists(reviewId))
+            if (await ReviewExists(reviewId))
             {
                 await _reviewService.RecoverHiddenReviewAsync(reviewId, staffEmail);
                 return Ok();
@@ -210,7 +210,7 @@ namespace ThAmCo.Reviews.Controllers
         {
             var staffEmail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
 
-            if (await ReviewDtoExists(reviewId))
+            if (await ReviewExists(reviewId))
             {
                 await _reviewService.RecoverDeletedReviewAsync(reviewId, staffEmail);
                 return Ok();
@@ -226,9 +226,9 @@ namespace ThAmCo.Reviews.Controllers
             return Ok( await _reviewService.GetMeanRating(productId));
         }
 
-        private Task<bool> ReviewDtoExists(int reviewId)
+        private Task<bool> ReviewExists(int reviewId)
         {
-            return _reviewService.DoesReviewDtoExists(reviewId);
+            return _reviewService.DoesReviewExists(reviewId);
         }
     }
 }

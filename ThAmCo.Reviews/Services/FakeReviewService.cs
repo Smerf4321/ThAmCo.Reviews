@@ -230,7 +230,7 @@ namespace ThAmCo.Reviews.Services
             return Task.FromResult((double)ratingTotal / ratings.Count);
         }
 
-        public Task<bool> DoesReviewDtoExists(int reviewId)
+        public Task<bool> DoesReviewExists(int reviewId)
         {
             return Task.FromResult(_reviews.Exists(r => r.reviewId == reviewId));
         }

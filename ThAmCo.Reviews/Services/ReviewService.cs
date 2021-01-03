@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,66 +10,215 @@ namespace ThAmCo.Reviews.Services
 {
     public class ReviewService : IReviewService
     {
-        private ThAmCoReviewsContext _context;
+        private ThAmCoReviewsContext _reviews;
 
         public ReviewService (ThAmCoReviewsContext context)
         {
-            _context = context;
+            _reviews = context;
         }
 
-        public Task CreateReviewAsync(ReviewDto review)
+        public async Task<ReviewDto> GetReviewAsync(int reviewId)
         {
-            throw new NotImplementedException();
+            var review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewId && !r.hidden && !r.deleted);
+            var reviewDto = new ReviewDto
+            {
+                reviewId = review.reviewId,
+                productId = review.productId,
+                userId = review.userId,
+                userName = review.userName,
+                reviewRating = review.reviewRating,
+                reviewContent = review.reviewContent
+            };
+            return reviewDto;
         }
 
-        public Task DeleteReviewAsync(int reviewId, string staffEmail)
+        public async Task<IEnumerable<ReviewDto>> GetReviewListAsync(int? productId, int? userId, Boolean hidden, Boolean deleted)
         {
-            throw new NotImplementedException();
+            var reviews = await _reviews.Review.Where(r => r.hidden == false && r.deleted == false).ToListAsync();
+
+            if (hidden)
+            {
+                reviews = await _reviews.Review.Where(r => r.hidden == true).ToListAsync();
+            }
+            else if (deleted)
+            {
+                reviews = await _reviews.Review.Where(r => r.deleted == true).ToListAsync();
+            }
+
+            IEnumerable<ReviewDto> reviewsList;
+
+            if (productId != null && userId != null)
+            {
+                reviewsList = reviews
+                    .Where(r => r.productId == productId && r.userId == userId)
+                    .Select(r => new ReviewDto
+                    {
+                        reviewId = r.reviewId,
+                        productId = r.productId,
+                        userId = r.userId,
+                        userName = r.userName,
+                        reviewRating = r.reviewRating,
+                        reviewContent = r.reviewContent
+                    });
+            }
+            else if (productId != null)
+            {
+                reviewsList = reviews
+                    .Where(r => r.productId == productId)
+                    .Select(r => new ReviewDto
+                    {
+                        reviewId = r.reviewId,
+                        productId = r.productId,
+                        userId = r.userId,
+                        userName = r.userName,
+                        reviewRating = r.reviewRating,
+                        reviewContent = r.reviewContent
+                    });
+            }
+            else if (userId != null)
+            {
+                reviewsList = reviews
+                    .Where(r => r.userId == userId)
+                    .Select(r => new ReviewDto
+                    {
+                        reviewId = r.reviewId,
+                        productId = r.productId,
+                        userId = r.userId,
+                        userName = r.userName,
+                        reviewRating = r.reviewRating,
+                        reviewContent = r.reviewContent
+                    });
+            }
+            else
+            {
+                reviewsList = reviews
+                    .Select(r => new ReviewDto
+                    {
+                        reviewId = r.reviewId,
+                        productId = r.productId,
+                        userId = r.userId,
+                        userName = r.userName,
+                        reviewRating = r.reviewRating,
+                        reviewContent = r.reviewContent
+                    });
+            }
+
+            return reviewsList;
         }
 
-        public Task DeleteReviewPIIAsync(int userId, string staffEmail)
+        public async Task CreateReviewAsync(ReviewDto reviewDto)
         {
-            throw new NotImplementedException();
+            var review = new Review
+            {
+                productId = reviewDto.productId,
+                userId = reviewDto.userId,
+                userName = reviewDto.userName,
+                reviewRating = reviewDto.reviewRating,
+                reviewContent = reviewDto.reviewContent,
+                hidden = false,
+                deleted = false,
+                dateCreated = DateTime.UtcNow,
+                lastUpdated = DateTime.UtcNow,
+                lastUpdatedStaffEmail = null
+            };
+
+            _reviews.Add(review);
+            await _reviews.SaveChangesAsync();
         }
 
-        public Task<bool> DoesReviewDtoExists(int reviewId)
+        public async Task DeleteReviewAsync(int reviewId, string staffEmail)
         {
-            throw new NotImplementedException();
+            Review review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewId);
+
+            review.deleted = true;
+            review.lastUpdated = DateTime.UtcNow;
+            review.lastUpdatedStaffEmail = staffEmail;
+
+            _reviews.Update(review);
+            await _reviews.SaveChangesAsync();
         }
 
-        public Task EditReviewAsync(ReviewDto review)
+        public async Task DeleteReviewPIIAsync(int userId, string staffEmail)
         {
-            throw new NotImplementedException();
+            List<Review> reviews = await _reviews.Review.Where(r => r.userId == userId).ToListAsync();
+
+            foreach (Review review in reviews)
+            {
+                review.userName = "Account Deleted";
+                review.deleted = true;
+                review.lastUpdated = DateTime.UtcNow;
+                review.lastUpdatedStaffEmail = staffEmail;
+
+                _reviews.Update(review);
+            }
+
+            await _reviews.SaveChangesAsync();
         }
 
-        public Task<double> GetMeanRating(int productId)
+        public async Task HideReviewAsync(int reviewId, string staffEmail)
         {
-            throw new NotImplementedException();
+            var review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewId);
+
+            review.hidden = true;
+            review.lastUpdated = DateTime.UtcNow;
+            review.lastUpdatedStaffEmail = staffEmail;
+
+            _reviews.Update(review);
+            await _reviews.SaveChangesAsync();
         }
 
-        public Task<ReviewDto> GetReviewAsync(int reviewId)
+        public async Task EditReviewAsync(ReviewDto reviewDto)
         {
-            throw new NotImplementedException();
+            var review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewDto.reviewId);
+
+            review.reviewRating = reviewDto.reviewRating;
+            review.reviewContent = reviewDto.reviewContent;
+            review.lastUpdated = DateTime.UtcNow;
+
+            _reviews.Update(review);
+            await _reviews.SaveChangesAsync();
         }
 
-        public Task<IEnumerable<ReviewDto>> GetReviewListAsync(int? productId, int? userId, bool hidden, bool deleted)
+        public async Task RecoverDeletedReviewAsync(int reviewId, string staffEmail)
         {
-            throw new NotImplementedException();
+            Review review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewId);
+
+            review.deleted = false;
+            review.lastUpdated = DateTime.UtcNow;
+            review.lastUpdatedStaffEmail = staffEmail;
+
+            _reviews.Update(review);
+            await _reviews.SaveChangesAsync();
         }
 
-        public Task HideReviewAsync(int reviewId, string staffEmail)
+        public async Task RecoverHiddenReviewAsync(int reviewId, string staffEmail)
         {
-            throw new NotImplementedException();
+            Review review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewId);
+
+            review.hidden = false;
+            review.lastUpdated = DateTime.UtcNow;
+            review.lastUpdatedStaffEmail = staffEmail;
+
+            _reviews.Update(review);
+            await _reviews.SaveChangesAsync();
         }
 
-        public Task RecoverDeletedReviewAsync(int reviewId, string staffEmail)
+        public async Task<double> GetMeanRating(int productId)
         {
-            throw new NotImplementedException();
+            List<Review> ratings = await _reviews.Review.Where(r => r.productId == productId).ToListAsync();
+            double ratingTotal = 0;
+
+            foreach (Review review in ratings)
+            {
+                ratingTotal += review.reviewRating;
+            }
+
+            return ((double)ratingTotal / ratings.Count);
         }
 
-        public Task RecoverHiddenReviewAsync(int reviewId, string staffEmail)
+        public async Task<bool> DoesReviewExists(int reviewId)
         {
-            throw new NotImplementedException();
+            return await _reviews.Review.AnyAsync(r => r.reviewId == reviewId);
         }
     }
 }

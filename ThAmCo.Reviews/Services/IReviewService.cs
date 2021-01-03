@@ -28,6 +28,6 @@ namespace ThAmCo.Reviews.Services
 
         Task<double> GetMeanRating(int productId);
 
-        Task<bool> DoesReviewDtoExists(int reviewId);
+        Task<bool> DoesReviewExists(int reviewId);
     }
 }
