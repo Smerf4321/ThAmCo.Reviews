@@ -14,6 +14,7 @@ using ThAmCo.Reviews.Services;
 namespace ThAmCo.Reviews.Controllers
 {
     [ApiController]
+    [Authorize]
     public class ReviewController : Controller
     {
         private readonly IReviewService _reviewService;
@@ -25,7 +26,6 @@ namespace ThAmCo.Reviews.Controllers
 
         // GET: api/Review/5
         [HttpGet("api/Review/{reviewId}")]
-        [Authorize(Policy = "CustomerOnly, StaffOnly")]
         public async Task<IActionResult> GetReviewAsync(int reviewId)
         {
             var reviewDto = await _reviewService.GetReviewAsync(reviewId);
@@ -40,7 +40,6 @@ namespace ThAmCo.Reviews.Controllers
 
         // GET: api/ReviewList/
         [HttpGet("api/ReviewList")]
-        [Authorize(Policy = "CustomerOnly, StaffOnly")]
         public async Task<IActionResult> GetReviewListAsync(int? productId, int? userId)
         {
             IEnumerable<ReviewDto> reviews;
@@ -63,7 +62,6 @@ namespace ThAmCo.Reviews.Controllers
 
         // GET: api/HiddenReviewList/
         [HttpGet("api/HiddenReviewList")]
-        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> GetHiddenReviewListAsync(int? productId, int? userId)
         {
             IEnumerable<ReviewDto> reviews;
@@ -86,7 +84,6 @@ namespace ThAmCo.Reviews.Controllers
 
         // GET: api/DeletedReviewList/
         [HttpGet("api/DeletedReviewList")]
-        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> GetDeletedReviewListAsync(int? productId, int? userId)
         {
             IEnumerable<ReviewDto> reviews;
@@ -109,7 +106,6 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: api/Review/Create
         [HttpPost("api/Review/Create")]
-        [Authorize(Policy = "CustomerOnly")]
         public async Task<IActionResult> Create([Bind("reviewId,userId,productId,userName,reviewContent,reviewRating")] ReviewDto reviewDto)
         {
             if (ModelState.IsValid)
@@ -122,10 +118,12 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: Review/Delete/5
         [HttpPost("api/Review/Delete/{reviewId}")]
-        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> Delete(int reviewId)
         {
-            var staffEmail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
 
             if (await ReviewExists(reviewId))
             {
@@ -137,10 +135,12 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: Review/DeletePII/5
         [HttpPost("api/Review/DeletePII/{reviewId}")]
-        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> DeletePII(int userId)
         {
-            var staffEmail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
 
             await _reviewService.DeleteReviewAsync(userId, staffEmail);
             return Ok();
@@ -148,10 +148,12 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: Review/Hide/5
         [HttpPost("api/Review/Hide/{reviewId}")]
-        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> Hide(int reviewId)
         {
-            var staffEmail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
 
             if (await ReviewExists(reviewId))
             {
@@ -163,7 +165,6 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: api/Review/Edit/5
         [HttpPost("api/Review/Edit/")]
-        [Authorize(Policy = "CustomerOnly")]
         public async Task<IActionResult> Edit([Bind("reviewId,userId,productId,userName,reviewContent,reviewRating")] ReviewDto reviewDto)
         {
             if (ModelState.IsValid)
@@ -190,10 +191,12 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: Review/RecoverHidden/5
         [HttpPost("api/Review/RecoverHidden/{reviewId}")]
-        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> RecoverHidden(int reviewId)
         {
-            var staffEmail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
 
             if (await ReviewExists(reviewId))
             {
@@ -205,10 +208,12 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: Review/RecoverDeleted/5
         [HttpPost("api/Review/RecoverDeleted/{reviewId}")]
-        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> RecoverDeleted(int reviewId)
         {
-            var staffEmail = User.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
 
             if (await ReviewExists(reviewId))
             {
@@ -220,7 +225,6 @@ namespace ThAmCo.Reviews.Controllers
 
         // GET: api/Review/Rating/5
         [HttpGet("api/Review/Rating/{prodcutId}")]
-        [Authorize(Policy = "StaffOnly")]
         public async Task<IActionResult> GetMeanRating(int productId)
         {
             return Ok( await _reviewService.GetMeanRating(productId));

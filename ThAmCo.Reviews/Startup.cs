@@ -33,19 +33,7 @@ namespace ThAmCo.Reviews
             services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
             {
                 options.Authority = "https://thamco-auth-staging.azurewebsites.net";
-                options.Audience = "api_review";
-            });
-
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("CustomerOnly", builder =>
-                {
-                    builder.RequireClaim("role", "User");
-                });
-                options.AddPolicy("StaffOnly", builder =>
-                {
-                    builder.RequireClaim("role", "Staff");
-                });
+                options.Audience = "api_reviews";
             });
 
             services.AddControllersWithViews();
