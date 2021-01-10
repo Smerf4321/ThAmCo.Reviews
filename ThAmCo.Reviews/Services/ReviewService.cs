@@ -20,6 +20,12 @@ namespace ThAmCo.Reviews.Services
         public async Task<ReviewDto> GetReviewAsync(int reviewId)
         {
             var review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewId && !r.deleted);
+
+            if (review is null)
+            {
+                return null;
+            }
+
             var reviewDto = new ReviewDto
             {
                 reviewId = review.reviewId,
