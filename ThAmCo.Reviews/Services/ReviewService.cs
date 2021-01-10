@@ -116,7 +116,7 @@ namespace ThAmCo.Reviews.Services
                         reviewContent = r.reviewContent,
                         dateCreated = r.dateCreated,
                         hidden = r.hidden
-                    })
+                    });
 
             }
 
