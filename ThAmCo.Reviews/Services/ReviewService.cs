@@ -106,15 +106,15 @@ namespace ThAmCo.Reviews.Services
             return reviewsList;
         }
 
-        public async Task CreateReviewAsync(ReviewDto reviewDto)
+        public async Task CreateReviewAsync(int userId, int productId, string userName, string reviewContent, int reviewRating)
         {
             var review = new Review
             {
-                productId = reviewDto.productId,
-                userId = reviewDto.userId,
-                userName = reviewDto.userName,
-                reviewRating = reviewDto.reviewRating,
-                reviewContent = reviewDto.reviewContent,
+                productId = productId,
+                userId = userId,
+                userName = userName,
+                reviewRating = reviewRating,
+                reviewContent = reviewContent,
                 hidden = false,
                 deleted = false,
                 dateCreated = DateTime.UtcNow,
@@ -155,6 +155,22 @@ namespace ThAmCo.Reviews.Services
             await _reviews.SaveChangesAsync();
         }
 
+        public async Task DeleteReviewByProductAsync(int productId,  string staffEmail)
+        {
+            List<Review> reviews = await _reviews.Review.Where(r => r.productId == productId).ToListAsync();
+
+            foreach (Review review in reviews)
+            {
+                review.deleted = true;
+                review.lastUpdated = DateTime.UtcNow;
+                review.lastUpdatedStaffEmail = staffEmail;
+
+                _reviews.Update(review);
+            }
+
+            await _reviews.SaveChangesAsync();
+        }
+
         public async Task HideReviewAsync(int reviewId, string staffEmail)
         {
             var review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewId);
@@ -167,12 +183,12 @@ namespace ThAmCo.Reviews.Services
             await _reviews.SaveChangesAsync();
         }
 
-        public async Task EditReviewAsync(ReviewDto reviewDto)
+        public async Task EditReviewAsync(int reviewId, string reviewContent, int reviewRating)
         {
-            var review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewDto.reviewId);
+            var review = await _reviews.Review.FirstOrDefaultAsync(r => r.reviewId == reviewId);
 
-            review.reviewRating = reviewDto.reviewRating;
-            review.reviewContent = reviewDto.reviewContent;
+            review.reviewRating = reviewRating;
+            review.reviewContent = reviewContent;
             review.lastUpdated = DateTime.UtcNow;
 
             _reviews.Update(review);

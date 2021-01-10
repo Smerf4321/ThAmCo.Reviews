@@ -20,8 +20,8 @@ namespace ThAmCo.Reviews
 
             using (var scope = host.Services.CreateScope())
             {
-                var context = host.Services.GetService<ThAmCoReviewsContext>();
-                context.Database.Migrate();
+                var context = scope.ServiceProvider.GetRequiredService<ThAmCoReviewsContext>();
+                context.Database.EnsureCreated();
             }
 
             host.Run();

@@ -106,17 +106,24 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: api/Review/Create
         [HttpPost("api/Review/Create")]
-        public async Task<IActionResult> Create([Bind("reviewId,userId,productId,userName,reviewContent,reviewRating")] ReviewDto reviewDto)
+        public async Task<IActionResult> Create(
+            int reviewId,
+            [FromForm(Name = "Review.userId")] int userId,
+            [FromForm(Name = "Review.productId")] int productId,
+            [FromForm(Name = "Review.userName")] string userName,
+            [FromForm(Name = "Review.reviewContent")] string reviewContent,
+            [FromForm(Name = "Review.reviewRating")] int reviewRating)
+
         {
             if (ModelState.IsValid)
             {
-                await _reviewService.CreateReviewAsync(reviewDto);
+                await _reviewService.CreateReviewAsync(userId, productId, userName, reviewContent, reviewRating);
                 return Ok();
             }
             return BadRequest();
         }
 
-        // POST: Review/Delete/5
+        // POST: api/Review/Delete/5
         [HttpPost("api/Review/Delete/{reviewId}")]
         public async Task<IActionResult> Delete(int reviewId)
         {
@@ -133,8 +140,8 @@ namespace ThAmCo.Reviews.Controllers
             return NotFound();
         }
 
-        // POST: Review/DeletePII/5
-        [HttpPost("api/Review/DeletePII/{reviewId}")]
+        // POST: api/Review/DeletePII/5
+        [HttpPost("api/Review/DeletePII/{userId}")]
         public async Task<IActionResult> DeletePII(int userId)
         {
             //FIX ME
@@ -142,11 +149,24 @@ namespace ThAmCo.Reviews.Controllers
             //FIX WHEN WEBAPP IS FIXED
             var staffEmail = "";
 
-            await _reviewService.DeleteReviewAsync(userId, staffEmail);
+            await _reviewService.DeleteReviewPIIAsync(userId, staffEmail);
             return Ok();
         }
 
-        // POST: Review/Hide/5
+        // POST: api/Review/DeleteByProduct/5
+        [HttpPost("api/Review/DeleteByProduct/{productId}")]
+        public async Task<IActionResult> DeleteByProduct(int productId)
+        {
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
+
+            await _reviewService.DeleteReviewByProductAsync(productId, staffEmail);
+            return Ok();
+        }
+
+        // POST: api/Review/Hide/5
         [HttpPost("api/Review/Hide/{reviewId}")]
         public async Task<IActionResult> Hide(int reviewId)
         {
@@ -163,25 +183,28 @@ namespace ThAmCo.Reviews.Controllers
             return NotFound();
         }
 
-        // POST: api/Review/Edit/5
+        // POST: api/Review/Edit/
         [HttpPost("api/Review/Edit/")]
-        public async Task<IActionResult> Edit([Bind("reviewId,userId,productId,userName,reviewContent,reviewRating")] ReviewDto reviewDto)
+        public async Task<IActionResult> Edit(
+            [FromForm(Name = "Review.reviewId")]int reviewId,
+            [FromForm(Name = "Review.reviewContent")] string reviewContent,
+            [FromForm(Name = "Review.reviewRating")] int reviewRating)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    await _reviewService.EditReviewAsync(reviewDto);
+                    await _reviewService.EditReviewAsync(reviewId, reviewContent, reviewRating);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await ReviewExists(reviewDto.reviewId)))
+                    if (!(await ReviewExists(reviewId)))
                     {
                         return NotFound();
                     }
                     else
                     {
-                        throw;
+                        return BadRequest();
                     }
                 }
                 return Ok();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,12 +9,14 @@ namespace ThAmCo.Reviews.Services
 {
     public class FakeReviewService : IReviewService
     {
-        private List<Review> _reviews;
-        private readonly List<Review> reviews = new List<Review>
+        public List<Review> _reviews;
+        public readonly List<Review> reviews = new List<Review>
         {
-            new Review {reviewId = 1, productId = 1, userId = 1, userName = "Dimitri 'Not-Russian-Bot' Ivanov", reviewRating = 5, reviewContent = "Great Product. You can believe me, I'm not a bot.", hidden = false, deleted = false, dateCreated = DateTime.UtcNow, lastUpdated = DateTime.UtcNow, lastUpdatedStaffEmail = "fakestaff@fake.staff" },
-            new Review {reviewId = 2, productId = 1, userId = 2, userName = "Joe Angry", reviewRating = 3, reviewContent = "It's an okay plunger. I expected more.", hidden = false, deleted = false, dateCreated = DateTime.UtcNow, lastUpdated = DateTime.UtcNow, lastUpdatedStaffEmail = "fakestaff@fake.staff" },
-            new Review {reviewId = 3, productId = 4, userId = 1, userName = "Dimitri 'Not-Russian-Bot' Ivanov", reviewRating = 4, reviewContent = "Good hardbass, although lacking the newest song from Dj Put-in", hidden = false, deleted = false, dateCreated = DateTime.UtcNow, lastUpdated = DateTime.UtcNow, lastUpdatedStaffEmail = "fakestaff@fake.staff" }
+            new Review {reviewId = 1, productId = 1, userId = 1, userName = "Dimitri 'Not-Russian-Bot' Ivanov", reviewRating = 5, reviewContent = "Great Product. You can believe me, I'm not a bot.", hidden = false, deleted = false, dateCreated = DateTime.UtcNow, lastUpdated = DateTime.UtcNow, lastUpdatedStaffEmail = "fakeuser@fake.user" },
+            new Review {reviewId = 2, productId = 1, userId = 2, userName = "Joe Angry", reviewRating = 3, reviewContent = "It's an okay plunger. I expected more.", hidden = false, deleted = false, dateCreated = DateTime.UtcNow, lastUpdated = DateTime.UtcNow, lastUpdatedStaffEmail = "fakeuser@fake.user" },
+            new Review {reviewId = 3, productId = 4, userId = 1, userName = "Dimitri 'Not-Russian-Bot' Ivanov", reviewRating = 4, reviewContent = "Good hardbass, although lacking the newest song from Dj Put-in", hidden = false, deleted = false, dateCreated = DateTime.UtcNow, lastUpdated = DateTime.UtcNow, lastUpdatedStaffEmail = "fakeuser@fake.user" },
+            new Review {reviewId = 4, productId = 2, userId = 3, userName = "Bob", reviewRating = 5, reviewContent = "Great quality", hidden = false, deleted = false, dateCreated = DateTime.UtcNow, lastUpdated = DateTime.UtcNow, lastUpdatedStaffEmail = "fakeuser@fake.user" },
+            new Review {reviewId = 5, productId = 5, userId = 4, userName = "Adam", reviewRating = 1, reviewContent = "Just no", hidden = true, deleted = true, dateCreated = DateTime.UtcNow, lastUpdated = DateTime.UtcNow, lastUpdatedStaffEmail = "fakeuser@fake.user" }
         };
 
         public FakeReviewService()
@@ -115,15 +118,17 @@ namespace ThAmCo.Reviews.Services
             return Task.FromResult(reviewsList);
         }
 
-        public Task CreateReviewAsync(ReviewDto reviewDto)
+        
+        public Task CreateReviewAsync(int userId, int productId, string userName, string reviewContent, int reviewRating)
         {
             var review = new Review
             {
-                productId = reviewDto.productId,
-                userId = reviewDto.userId,
-                userName = reviewDto.userName,
-                reviewRating = reviewDto.reviewRating,
-                reviewContent = reviewDto.reviewContent,
+                reviewId = reviews.Count + 1,
+                productId = productId,
+                userId = userId,
+                userName = userName,
+                reviewRating = reviewRating,
+                reviewContent = reviewContent,
                 hidden = false,
                 deleted = false,
                 dateCreated = DateTime.UtcNow,
@@ -150,17 +155,32 @@ namespace ThAmCo.Reviews.Services
         }
 
         public Task DeleteReviewPIIAsync(int userId, string staffEmail)
-        {
-            List<Review> reviews = _reviews.FindAll(r => r.userId == userId);
-
-            return Task.Run(() =>
-            {
-                foreach (Review review in reviews)
+        { 
+            return Task.Run(() => {
+                for (int i = 0; i <= _reviews.Count-1; i++)
                 {
-                    review.userName = "Account Deleted";
-                    review.deleted = true;
-                    review.lastUpdated = DateTime.UtcNow;
-                    review.lastUpdatedStaffEmail = staffEmail;
+                    if (_reviews[i].userId == userId)
+                    {
+                        _reviews[i].userName = "Account Deleted";
+                        _reviews[i].deleted = true;
+                        _reviews[i].lastUpdated = DateTime.UtcNow;
+                        _reviews[i].lastUpdatedStaffEmail = staffEmail;
+                    }
+                }
+            });
+        }
+
+        public Task DeleteReviewByProductAsync(int productId, string staffEmail)
+        {
+            return Task.Run(() => {
+                for (int i = 0; i <= _reviews.Count - 1; i++)
+                {
+                    if (_reviews[i].productId == productId)
+                    {
+                        _reviews[i].deleted = true;
+                        _reviews[i].lastUpdated = DateTime.UtcNow;
+                        _reviews[i].lastUpdatedStaffEmail = staffEmail;
+                    }
                 }
             });
         }
@@ -177,15 +197,15 @@ namespace ThAmCo.Reviews.Services
             });
         }
 
-        public Task EditReviewAsync(ReviewDto reviewDto)
+        public Task EditReviewAsync(int reviewId, string reviewContent, int reviewRating)
         {
-            var review = _reviews.Find(r => r.reviewId == reviewDto.reviewId);
+            var review = _reviews.Find(r => r.reviewId == reviewId);
 
             return Task.Run(() =>
             {
                 _reviews.Remove(review);
-                review.reviewRating = reviewDto.reviewRating;
-                review.reviewContent = reviewDto.reviewContent;
+                review.reviewRating = reviewRating;
+                review.reviewContent = reviewContent;
                 review.lastUpdated = DateTime.UtcNow;
                 _reviews.Add(review);
             });
@@ -193,25 +213,33 @@ namespace ThAmCo.Reviews.Services
 
         public Task RecoverDeletedReviewAsync(int reviewId, string staffEmail)
         {
-            Review review = _reviews.Find(r => r.reviewId == reviewId);
-
             return Task.Run(() =>
             {
-                review.deleted = false;
-                review.lastUpdated = DateTime.UtcNow;
-                review.lastUpdatedStaffEmail = staffEmail;
+                for (int i = 0; i <= _reviews.Count - 1; i++)
+                {
+                    if (_reviews[i].reviewId == reviewId)
+                    {
+                        _reviews[i].deleted = false;
+                        _reviews[i].lastUpdated = DateTime.UtcNow;
+                        _reviews[i].lastUpdatedStaffEmail = staffEmail;
+                    }
+                }  
             });
         }
 
         public Task RecoverHiddenReviewAsync(int reviewId, string staffEmail)
         {
-            Review review = _reviews.Find(r => r.reviewId == reviewId);
-
             return Task.Run(() =>
             {
-                review.hidden = false;
-                review.lastUpdated = DateTime.UtcNow;
-                review.lastUpdatedStaffEmail = staffEmail;
+                for (int i = 0; i <= _reviews.Count - 1; i++)
+                {
+                    if (_reviews[i].reviewId == reviewId)
+                    {
+                        _reviews[i].hidden = false;
+                        _reviews[i].lastUpdated = DateTime.UtcNow;
+                        _reviews[i].lastUpdatedStaffEmail = staffEmail;
+                    }
+                }
             });
         }
 
@@ -220,7 +248,7 @@ namespace ThAmCo.Reviews.Services
             List<Review> ratings = _reviews.FindAll(r => r.productId == productId);
             double ratingTotal = 0;
 
-            if (ratings.Equals(null))
+            if (ratings.Count == 0)
             {
                 return Task.FromResult(ratingTotal);
             }
