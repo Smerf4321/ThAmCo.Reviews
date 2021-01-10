@@ -108,11 +108,11 @@ namespace ThAmCo.Reviews.Controllers
         [HttpPost("api/CreateReview")]
         public async Task<IActionResult> Create(
             int reviewId,
-            [FromForm(Name = "Review.userId")] int userId,
-            [FromForm(Name = "Review.productId")] int productId,
-            [FromForm(Name = "Review.userName")] string userName,
-            [FromForm(Name = "Review.reviewContent")] string reviewContent,
-            [FromForm(Name = "Review.reviewRating")] int reviewRating)
+            [FromForm] int userId,
+            [FromForm] int productId,
+            [FromForm] string userName,
+            [FromForm] string reviewContent,
+            [FromForm] int reviewRating)
 
         {
             if (ModelState.IsValid)
@@ -186,9 +186,9 @@ namespace ThAmCo.Reviews.Controllers
         // POST: api/EditReview/
         [HttpPost("api/EditReview")]
         public async Task<IActionResult> Edit(
-            [FromForm(Name = "Review.reviewId")]int reviewId,
-            [FromForm(Name = "Review.reviewContent")] string reviewContent,
-            [FromForm(Name = "Review.reviewRating")] int reviewRating)
+            [FromForm]int reviewId,
+            [FromForm] string reviewContent,
+            [FromForm] int reviewRating)
         {
             if (ModelState.IsValid)
             {

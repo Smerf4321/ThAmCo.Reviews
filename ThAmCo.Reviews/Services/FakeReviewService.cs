@@ -31,7 +31,7 @@ namespace ThAmCo.Reviews.Services
 
         public Task<ReviewDto> GetReviewAsync(int reviewId)
         {
-            var review = _reviews.Find(r => r.reviewId == reviewId && !r.hidden && !r.deleted);
+            var review = _reviews.Find(r => r.reviewId == reviewId && !r.deleted);
             var reviewDto = new ReviewDto
                 {
                     reviewId = review.reviewId,
