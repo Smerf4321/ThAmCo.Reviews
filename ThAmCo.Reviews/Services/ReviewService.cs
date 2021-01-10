@@ -33,7 +33,9 @@ namespace ThAmCo.Reviews.Services
                 userId = review.userId,
                 userName = review.userName,
                 reviewRating = review.reviewRating,
-                reviewContent = review.reviewContent
+                reviewContent = review.reviewContent,
+                dateCreated = review.dateCreated,
+                hidden = review.hidden
             };
             return reviewDto;
         }
@@ -64,7 +66,9 @@ namespace ThAmCo.Reviews.Services
                         userId = r.userId,
                         userName = r.userName,
                         reviewRating = r.reviewRating,
-                        reviewContent = r.reviewContent
+                        reviewContent = r.reviewContent,
+                        dateCreated = r.dateCreated,
+                        hidden = r.hidden
                     });
             }
             else if (productId != null)
@@ -78,7 +82,9 @@ namespace ThAmCo.Reviews.Services
                         userId = r.userId,
                         userName = r.userName,
                         reviewRating = r.reviewRating,
-                        reviewContent = r.reviewContent
+                        reviewContent = r.reviewContent,
+                        dateCreated = r.dateCreated,
+                        hidden = r.hidden
                     });
             }
             else if (userId != null)
@@ -92,7 +98,9 @@ namespace ThAmCo.Reviews.Services
                         userId = r.userId,
                         userName = r.userName,
                         reviewRating = r.reviewRating,
-                        reviewContent = r.reviewContent
+                        reviewContent = r.reviewContent,
+                        dateCreated = r.dateCreated,
+                        hidden = r.hidden
                     });
             }
             else
@@ -105,8 +113,11 @@ namespace ThAmCo.Reviews.Services
                         userId = r.userId,
                         userName = r.userName,
                         reviewRating = r.reviewRating,
-                        reviewContent = r.reviewContent
-                    });
+                        reviewContent = r.reviewContent,
+                        dateCreated = r.dateCreated,
+                        hidden = r.hidden
+                    })
+
             }
 
             return reviewsList;
