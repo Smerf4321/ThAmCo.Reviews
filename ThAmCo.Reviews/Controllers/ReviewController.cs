@@ -38,7 +38,7 @@ namespace ThAmCo.Reviews.Controllers
             return Ok(reviewDto);
         }
 
-        // GET: api/ReviewList/
+        // GET: api/ReviewList
         [HttpGet("api/ReviewList")]
         public async Task<IActionResult> GetReviewListAsync(int? productId, int? userId)
         {
@@ -60,7 +60,7 @@ namespace ThAmCo.Reviews.Controllers
             return Ok(reviews);
         }
 
-        // GET: api/HiddenReviewList/
+        // GET: api/HiddenReviewList
         [HttpGet("api/HiddenReviewList")]
         public async Task<IActionResult> GetHiddenReviewListAsync(int? productId, int? userId)
         {
@@ -82,7 +82,7 @@ namespace ThAmCo.Reviews.Controllers
             return Ok(reviews);
         }
 
-        // GET: api/DeletedReviewList/
+        // GET: api/DeletedReviewList
         [HttpGet("api/DeletedReviewList")]
         public async Task<IActionResult> GetDeletedReviewListAsync(int? productId, int? userId)
         {
@@ -104,8 +104,8 @@ namespace ThAmCo.Reviews.Controllers
             return Ok(reviews);
         }
 
-        // POST: api/Review/Create
-        [HttpPost("api/Review/Create")]
+        // POST: api/CreateReview
+        [HttpPost("api/CreateReview")]
         public async Task<IActionResult> Create(
             int reviewId,
             [FromForm(Name = "Review.userId")] int userId,
@@ -123,8 +123,8 @@ namespace ThAmCo.Reviews.Controllers
             return BadRequest();
         }
 
-        // POST: api/Review/Delete/5
-        [HttpPost("api/Review/Delete/{reviewId}")]
+        // POST: api/DeleteReview/
+        [HttpPost("api/DeleteReview/{reviewId}")]
         public async Task<IActionResult> Delete(int reviewId)
         {
             //FIX ME
@@ -140,8 +140,8 @@ namespace ThAmCo.Reviews.Controllers
             return NotFound();
         }
 
-        // POST: api/Review/DeletePII/5
-        [HttpPost("api/Review/DeletePII/{userId}")]
+        // POST: api/DeleteReviewPII/5
+        [HttpPost("api/DeleteReviewPII/{userId}")]
         public async Task<IActionResult> DeletePII(int userId)
         {
             //FIX ME
@@ -153,8 +153,8 @@ namespace ThAmCo.Reviews.Controllers
             return Ok();
         }
 
-        // POST: api/Review/DeleteByProduct/5
-        [HttpPost("api/Review/DeleteByProduct/{productId}")]
+        // POST: api/DeleteReviewByProduct/5
+        [HttpPost("api/DeleteReviewByProduct/{productId}")]
         public async Task<IActionResult> DeleteByProduct(int productId)
         {
             //FIX ME
@@ -166,8 +166,8 @@ namespace ThAmCo.Reviews.Controllers
             return Ok();
         }
 
-        // POST: api/Review/Hide/5
-        [HttpPost("api/Review/Hide/{reviewId}")]
+        // POST: api/HideReview/5
+        [HttpPost("api/HideReview/{reviewId}")]
         public async Task<IActionResult> Hide(int reviewId)
         {
             //FIX ME
@@ -183,8 +183,8 @@ namespace ThAmCo.Reviews.Controllers
             return NotFound();
         }
 
-        // POST: api/Review/Edit/
-        [HttpPost("api/Review/Edit/")]
+        // POST: api/EditReview/
+        [HttpPost("api/EditReview")]
         public async Task<IActionResult> Edit(
             [FromForm(Name = "Review.reviewId")]int reviewId,
             [FromForm(Name = "Review.reviewContent")] string reviewContent,
@@ -212,8 +212,8 @@ namespace ThAmCo.Reviews.Controllers
             return BadRequest();
         }
 
-        // POST: Review/RecoverHidden/5
-        [HttpPost("api/Review/RecoverHidden/{reviewId}")]
+        // POST: api/RecoverHiddenReview/5
+        [HttpPost("api/RecoverHiddenReview/{reviewId}")]
         public async Task<IActionResult> RecoverHidden(int reviewId)
         {
             //FIX ME
@@ -229,8 +229,8 @@ namespace ThAmCo.Reviews.Controllers
             return NotFound();
         }
 
-        // POST: Review/RecoverDeleted/5
-        [HttpPost("api/Review/RecoverDeleted/{reviewId}")]
+        // POST: api/RecoverDeletedReview/5
+        [HttpPost("api/RecoverDeletedReview/{reviewId}")]
         public async Task<IActionResult> RecoverDeleted(int reviewId)
         {
             //FIX ME
@@ -246,8 +246,8 @@ namespace ThAmCo.Reviews.Controllers
             return NotFound();
         }
 
-        // GET: api/Review/Rating/5
-        [HttpGet("api/Review/Rating/{prodcutId}")]
+        // GET: api/ReviewRating/5
+        [HttpGet("api/ReviewRating/{prodcutId}")]
         public async Task<IActionResult> GetMeanRating(int productId)
         {
             return Ok( await _reviewService.GetMeanRating(productId));
