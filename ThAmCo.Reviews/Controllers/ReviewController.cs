@@ -106,7 +106,7 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: api/CreateReview
         [HttpPost("api/CreateReview")]
-        public async Task<IActionResult> Create(
+        public async Task<IActionResult> CreateReview(
             int reviewId,
             [FromForm] int userId,
             [FromForm] int productId,
@@ -125,7 +125,7 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: api/DeleteReview/
         [HttpPost("api/DeleteReview/{reviewId}")]
-        public async Task<IActionResult> Delete(int reviewId)
+        public async Task<IActionResult> DeleteReview(int reviewId)
         {
             //FIX ME
             //DO NOT LEAVE THIS IN THE CODE 
@@ -168,7 +168,7 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: api/HideReview/5
         [HttpPost("api/HideReview/{reviewId}")]
-        public async Task<IActionResult> Hide(int reviewId)
+        public async Task<IActionResult> HideReview(int reviewId)
         {
             //FIX ME
             //DO NOT LEAVE THIS IN THE CODE 
@@ -185,7 +185,7 @@ namespace ThAmCo.Reviews.Controllers
 
         // POST: api/EditReview/
         [HttpPost("api/EditReview")]
-        public async Task<IActionResult> Edit(
+        public async Task<IActionResult> EditReview(
             [FromForm]int reviewId,
             [FromForm] string reviewContent,
             [FromForm] int reviewRating)

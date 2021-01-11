@@ -36,7 +36,7 @@ namespace ThAmCo.Reviews
                 options.Audience = "api_reviews";
             });
 
-            services.AddControllersWithViews();
+            services.AddControllers();
 
             if (Environment.IsDevelopment())
             {
@@ -48,7 +48,16 @@ namespace ThAmCo.Reviews
             }
 
             services.AddDbContext<ThAmCoReviewsContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("ThAmCoReviewsContext"), x => x.MigrationsHistoryTable("__EFMigrationHistory", "Review")));
+                    options.UseSqlServer(Configuration.GetConnectionString("ThAmCoReviewsContext"),
+                    x => 
+                    {
+                        x.MigrationsHistoryTable("__EFMigrationHistory", "Review");
+                        x.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorNumbersToAdd: null
+                        );
+                    }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
