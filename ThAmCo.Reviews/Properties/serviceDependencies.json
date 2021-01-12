@@ -1,9 +1,5 @@
 {
   "dependencies": {
-    "mssql1": {
-      "type": "mssql",
-      "connectionId": "ReviewsContext"
-    },
     "mssql2": {
       "type": "mssql",
       "connectionId": "ThAmCoReviewsContext"

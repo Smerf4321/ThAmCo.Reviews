@@ -17,6 +17,7 @@ namespace ThAmCo.Reviews.Controllers
     [Authorize]
     public class ReviewController : Controller
     {
+        //test
         private readonly IReviewService _reviewService;
 
         public ReviewController(IReviewService reviewService)
