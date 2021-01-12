@@ -52,7 +52,7 @@ namespace ThAmCo.Reviews.Controllers
                 reviews = Array.Empty<ReviewDto>();
             }
 
-            if (reviews == null)
+            if (reviews is null)
             {
                 return NotFound();
             }
@@ -107,7 +107,6 @@ namespace ThAmCo.Reviews.Controllers
         // POST: api/CreateReview
         [HttpPost("api/CreateReview")]
         public async Task<IActionResult> CreateReview(
-            int reviewId,
             [FromForm] int userId,
             [FromForm] int productId,
             [FromForm] string userName,
@@ -115,12 +114,8 @@ namespace ThAmCo.Reviews.Controllers
             [FromForm] int reviewRating)
 
         {
-            if (ModelState.IsValid)
-            {
-                await _reviewService.CreateReviewAsync(userId, productId, userName, reviewContent, reviewRating);
-                return Ok();
-            }
-            return BadRequest();
+            await _reviewService.CreateReviewAsync(userId, productId, userName, reviewContent, reviewRating);
+            return Ok();
         }
 
         // POST: api/DeleteReview/
@@ -190,26 +185,19 @@ namespace ThAmCo.Reviews.Controllers
             [FromForm] string reviewContent,
             [FromForm] int reviewRating)
         {
-            if (ModelState.IsValid)
+            try
             {
-                try
+                if (!(await ReviewExists(reviewId)))
                 {
-                    await _reviewService.EditReviewAsync(reviewId, reviewContent, reviewRating);
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!(await ReviewExists(reviewId)))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        return BadRequest();
-                    }
-                }
-                return Ok();
+                await _reviewService.EditReviewAsync(reviewId, reviewContent, reviewRating);
             }
-            return BadRequest();
+            catch (DbUpdateConcurrencyException)
+            {
+                return BadRequest();
+            }
+            return Ok();
         }
 
         // POST: api/RecoverHiddenReview/5
@@ -250,7 +238,7 @@ namespace ThAmCo.Reviews.Controllers
         [HttpGet("api/ReviewRating/{prodcutId}")]
         public async Task<IActionResult> GetMeanRating(int productId)
         {
-            return Ok( await _reviewService.GetMeanRating(productId));
+            return Ok(await _reviewService.GetMeanRating(productId));
         }
 
         private Task<bool> ReviewExists(int reviewId)

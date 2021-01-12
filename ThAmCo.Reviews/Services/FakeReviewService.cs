@@ -33,9 +33,9 @@ namespace ThAmCo.Reviews.Services
         {
             var review = _reviews.Find(r => r.reviewId == reviewId && !r.deleted);
 
-            if (review is null)
+            if (!DoesReviewExists(reviewId).Result)
             {
-                return null;
+                return Task.FromResult<ReviewDto>(null);
             }
 
             var reviewDto = new ReviewDto
@@ -54,16 +54,7 @@ namespace ThAmCo.Reviews.Services
 
         public Task<IEnumerable<ReviewDto>> GetReviewListAsync(int? productId, int? userId, Boolean hidden, Boolean deleted)
         {
-            var reviews = _reviews.AsEnumerable().Where(r => r.hidden == false && r.deleted == false);
-
-            if (hidden)
-            {
-                reviews = _reviews.AsEnumerable().Where(r => r.hidden == true);
-            }
-            else if (deleted)
-            {
-                reviews = _reviews.AsEnumerable().Where(r => r.deleted == true);
-            }
+            var reviews = _reviews.AsEnumerable().Where(r => r.hidden == hidden && r.deleted == deleted);
 
             IEnumerable<ReviewDto> reviewsList;
             
@@ -162,6 +153,11 @@ namespace ThAmCo.Reviews.Services
         {
             Review review = _reviews.Find(r => r.reviewId == reviewId);
 
+            if (!DoesReviewExists(reviewId).Result)
+            {
+                return Task.FromResult<ReviewDto>(null);
+            }
+
             return Task.Run(() =>
             {
                 review.deleted = true;
@@ -205,6 +201,11 @@ namespace ThAmCo.Reviews.Services
         {
             Review review = _reviews.Find(r => r.reviewId == reviewId);
 
+            if (!DoesReviewExists(reviewId).Result)
+            {
+                return Task.Run(() => { });
+            }
+
             return Task.Run(() =>
             {
                 review.hidden = true;
@@ -216,6 +217,11 @@ namespace ThAmCo.Reviews.Services
         public Task EditReviewAsync(int reviewId, string reviewContent, int reviewRating)
         {
             var review = _reviews.Find(r => r.reviewId == reviewId);
+
+            if (!DoesReviewExists(reviewId).Result)
+            {
+                return Task.Run(() => { });
+            }
 
             return Task.Run(() =>
             {
@@ -229,6 +235,11 @@ namespace ThAmCo.Reviews.Services
 
         public Task RecoverDeletedReviewAsync(int reviewId, string staffEmail)
         {
+            if (!DoesReviewExists(reviewId).Result)
+            {
+                return Task.Run(() => { });
+            }
+
             return Task.Run(() =>
             {
                 for (int i = 0; i <= _reviews.Count - 1; i++)
@@ -245,6 +256,11 @@ namespace ThAmCo.Reviews.Services
 
         public Task RecoverHiddenReviewAsync(int reviewId, string staffEmail)
         {
+            if (!DoesReviewExists(reviewId).Result)
+            {
+                return Task.Run(() => { });
+            }
+
             return Task.Run(() =>
             {
                 for (int i = 0; i <= _reviews.Count - 1; i++)
