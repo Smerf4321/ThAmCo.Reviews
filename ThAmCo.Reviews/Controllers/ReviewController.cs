@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ using ThAmCo.Reviews.Services;
 namespace ThAmCo.Reviews.Controllers
 {
     [ApiController]
+    [Authorize]
     public class ReviewController : Controller
     {
         private readonly IReviewService _reviewService;
@@ -20,28 +22,6 @@ namespace ThAmCo.Reviews.Controllers
         public ReviewController(IReviewService reviewService)
         {
             _reviewService = reviewService;
-        }
-
-        // GET: api/Review/
-        [HttpGet("api/Review")]
-        public async Task<IActionResult> GetReviewListAsync(int? productId, int? userId)
-        {
-            IEnumerable<ReviewDto> reviews = null;
-            try
-            {
-                reviews = await _reviewService.GetReviewListAsync(productId, userId);
-            }
-            catch (HttpRequestException)
-            {
-                reviews = Array.Empty<ReviewDto>();
-            }
-
-            if (reviews == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(reviews);
         }
 
         // GET: api/Review/5
@@ -58,66 +38,212 @@ namespace ThAmCo.Reviews.Controllers
             return Ok(reviewDto);
         }
 
-        // POST: api/Review/Create
-        [HttpPost("api/Review/Create")]
-        public async Task<IActionResult> Create([Bind("reviewId,userId,productId,userName,reviewContent,reviewRating")] ReviewDto reviewDto)
+        // GET: api/ReviewList
+        [HttpGet("api/ReviewList")]
+        public async Task<IActionResult> GetReviewListAsync(int? productId, int? userId)
         {
-            if (ModelState.IsValid)
+            IEnumerable<ReviewDto> reviews;
+            try
             {
-                await _reviewService.CreateReviewAsync(reviewDto);
-                return Ok();
+                reviews = await _reviewService.GetReviewListAsync(productId, userId, false, false);
             }
-            return BadRequest();
+            catch (HttpRequestException)
+            {
+                reviews = Array.Empty<ReviewDto>();
+            }
+
+            if (reviews is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(reviews);
         }
 
-        // POST: api/Review/Edit/5
-        [HttpPost("api/Review/Edit/")]
-        public async Task<IActionResult> Edit([Bind("reviewId,userId,productId,userName,reviewContent,reviewRating")] ReviewDto reviewDto)
+        // GET: api/HiddenReviewList
+        [HttpGet("api/HiddenReviewList")]
+        public async Task<IActionResult> GetHiddenReviewListAsync(int? productId, int? userId)
         {
-            if (ModelState.IsValid)
+            IEnumerable<ReviewDto> reviews;
+            try
             {
-                try
-                {
-                    await _reviewService.EditReviewAsync(reviewDto);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!(await ReviewDtoExists(reviewDto.reviewId)))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return Ok();
+                reviews = await _reviewService.GetReviewListAsync(productId, userId, true, false);
             }
-            return BadRequest();
+            catch (HttpRequestException)
+            {
+                reviews = Array.Empty<ReviewDto>();
+            }
+
+            if (reviews == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(reviews);
         }
 
-        // POST: ReviewDtoes/Delete/5
-        [HttpPost("api/Review/Delete/{reviewId}")]
-        public async Task<IActionResult> DeleteConfirmed(int reviewId)
+        // GET: api/DeletedReviewList
+        [HttpGet("api/DeletedReviewList")]
+        public async Task<IActionResult> GetDeletedReviewListAsync(int? productId, int? userId)
         {
-            if (await ReviewDtoExists(reviewId))
+            IEnumerable<ReviewDto> reviews;
+            try
             {
-                await _reviewService.DeleteReviewAsync(reviewId);
+                reviews = await _reviewService.GetReviewListAsync(productId, userId, false, true);
+            }
+            catch (HttpRequestException)
+            {
+                reviews = Array.Empty<ReviewDto>();
+            }
+
+            if (reviews == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(reviews);
+        }
+
+        // POST: api/CreateReview
+        [HttpPost("api/CreateReview")]
+        public async Task<IActionResult> CreateReview(
+            [FromForm] int userId,
+            [FromForm] int productId,
+            [FromForm] string userName,
+            [FromForm] string reviewContent,
+            [FromForm] int reviewRating)
+
+        {
+            await _reviewService.CreateReviewAsync(userId, productId, userName, reviewContent, reviewRating);
+            return Ok();
+        }
+
+        // POST: api/DeleteReview/
+        [HttpPost("api/DeleteReview/{reviewId}")]
+        public async Task<IActionResult> DeleteReview(int reviewId)
+        {
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
+
+            if (await ReviewExists(reviewId))
+            {
+                await _reviewService.DeleteReviewAsync(reviewId, staffEmail);
                 return Ok();
             }
             return NotFound();
         }
 
-        private Task<bool> ReviewDtoExists(int reviewId)
+        // POST: api/DeleteReviewPII/5
+        [HttpPost("api/DeleteReviewPII/{userId}")]
+        public async Task<IActionResult> DeletePII(int userId)
         {
-            return _reviewService.DoesReviewDtoExists(reviewId);
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
+
+            await _reviewService.DeleteReviewPIIAsync(userId, staffEmail);
+            return Ok();
         }
 
-        // GET: api/Review/Rating/5
-        [HttpGet("api/Review/Rating/{prodcutId}")]
+        // POST: api/DeleteReviewByProduct/5
+        [HttpPost("api/DeleteReviewByProduct/{productId}")]
+        public async Task<IActionResult> DeleteByProduct(int productId)
+        {
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
+
+            await _reviewService.DeleteReviewByProductAsync(productId, staffEmail);
+            return Ok();
+        }
+
+        // POST: api/HideReview/5
+        [HttpPost("api/HideReview/{reviewId}")]
+        public async Task<IActionResult> HideReview(int reviewId)
+        {
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
+
+            if (await ReviewExists(reviewId))
+            {
+                await _reviewService.HideReviewAsync(reviewId, staffEmail);
+                return Ok();
+            }
+            return NotFound();
+        }
+
+        // POST: api/EditReview/
+        [HttpPost("api/EditReview")]
+        public async Task<IActionResult> EditReview(
+            [FromForm]int reviewId,
+            [FromForm] string reviewContent,
+            [FromForm] int reviewRating)
+        {
+            try
+            {
+                if (!(await ReviewExists(reviewId)))
+                {
+                    return NotFound();
+                }
+                await _reviewService.EditReviewAsync(reviewId, reviewContent, reviewRating);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return BadRequest();
+            }
+            return Ok();
+        }
+
+        // POST: api/RecoverHiddenReview/5
+        [HttpPost("api/RecoverHiddenReview/{reviewId}")]
+        public async Task<IActionResult> RecoverHidden(int reviewId)
+        {
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
+
+            if (await ReviewExists(reviewId))
+            {
+                await _reviewService.RecoverHiddenReviewAsync(reviewId, staffEmail);
+                return Ok();
+            }
+            return NotFound();
+        }
+
+        // POST: api/RecoverDeletedReview/5
+        [HttpPost("api/RecoverDeletedReview/{reviewId}")]
+        public async Task<IActionResult> RecoverDeleted(int reviewId)
+        {
+            //FIX ME
+            //DO NOT LEAVE THIS IN THE CODE 
+            //FIX WHEN WEBAPP IS FIXED
+            var staffEmail = "";
+
+            if (await ReviewExists(reviewId))
+            {
+                await _reviewService.RecoverDeletedReviewAsync(reviewId, staffEmail);
+                return Ok();
+            }
+            return NotFound();
+        }
+
+        // GET: api/ReviewRating/5
+        [HttpGet("api/ReviewRating/{prodcutId}")]
         public async Task<IActionResult> GetMeanRating(int productId)
         {
-            return Ok( await _reviewService.GetMeanRating(productId));
+            return Ok(await _reviewService.GetMeanRating(productId));
+        }
+
+        private Task<bool> ReviewExists(int reviewId)
+        {
+            return _reviewService.DoesReviewExists(reviewId);
         }
     }
 }

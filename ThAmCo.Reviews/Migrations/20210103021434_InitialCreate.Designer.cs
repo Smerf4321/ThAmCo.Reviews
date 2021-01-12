@@ -10,7 +10,7 @@ using ThAmCo.Reviews.Data;
 namespace ThAmCo.Reviews.Migrations
 {
     [DbContext(typeof(ThAmCoReviewsContext))]
-    [Migration("20201209140025_Initial-Create")]
+    [Migration("20210103021434_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -5,6 +5,12 @@
       "type": "mssql.azure",
       "connectionId": "ReviewsContext",
       "secretStore": "AzureAppSettings"
+    },
+    "mssql2": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/thamcodb/databases/ThAmCo.Reviews_db",
+      "type": "mssql.azure",
+      "connectionId": "ThAmCoReviewsContext",
+      "secretStore": "AzureAppSettings"
     }
   }
 }

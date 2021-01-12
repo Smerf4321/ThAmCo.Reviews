@@ -20,5 +20,9 @@ namespace ThAmCo.Reviews.Models
         public string reviewContent { get; set; }
 
         public int reviewRating { get; set; }
+
+        public DateTime dateCreated { get; set; }
+
+        public bool hidden { get; set; }
     }
 }
