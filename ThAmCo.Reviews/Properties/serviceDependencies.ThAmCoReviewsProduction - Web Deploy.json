@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "mssql2": {
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/thamcodb/databases/ThAmCo.ReviewsProduction_db",
+      "type": "mssql.azure",
+      "connectionId": "ThAmCoReviewsContext",
+      "secretStore": "AzureAppSettings"
+    }
+  }
+}

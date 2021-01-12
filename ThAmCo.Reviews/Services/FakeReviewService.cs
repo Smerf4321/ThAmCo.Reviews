@@ -124,7 +124,6 @@ namespace ThAmCo.Reviews.Services
 
             return Task.FromResult(reviewsList);
         }
-
         
         public Task CreateReviewAsync(int userId, int productId, string userName, string reviewContent, int reviewRating)
         {
