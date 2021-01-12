@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ThAmCo.Reviews.Models
 {
-    public class ReviewDto
+    public class Review
     {
         [Key]
         public int reviewId { get; set; }
@@ -21,8 +21,14 @@ namespace ThAmCo.Reviews.Models
 
         public int reviewRating { get; set; }
 
+        public bool hidden { get; set; }
+
+        public bool deleted { get; set; }
+
         public DateTime dateCreated { get; set; }
 
-        public bool hidden { get; set; }
+        public DateTime lastUpdated { get; set; }
+
+        public string lastUpdatedStaffEmail { get; set; }
     }
 }
