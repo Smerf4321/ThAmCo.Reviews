@@ -38,7 +38,7 @@ namespace ThAmCo.Reviews
 
             services.AddControllers();
 
-            if (Environment.IsDevelopment())
+            if (!Environment.IsDevelopment())
             {
                 services.AddSingleton<IReviewService, FakeReviewService>();
             }
